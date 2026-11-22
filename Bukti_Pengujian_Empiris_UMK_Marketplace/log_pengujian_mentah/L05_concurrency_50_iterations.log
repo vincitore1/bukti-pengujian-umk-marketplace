@@ -1,0 +1,25 @@
+================================================================================
+TEST CASE EVIDENCE LOG: L05 - Konfirmasi serah terima serentak (race condition)
+Business Rule: BR6: Konfirmasi serah terima serentak tidak boleh mengurangi stok ganda
+Target: API / HTTP Level Concurrency Validation
+Database: Supabase umk-marketplace-testing (isolated testing DB: zojvqbaylpxqjygeqnpj)
+Iterations: 50
+Generated At: 2026-11-20T04:06:40.343Z
+================================================================================
+[Iter 1/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+[Iter 10/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+[Iter 20/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+[Iter 30/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+[Iter 40/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+[Iter 50/50] PASS | stockBefore=5, stockAfter=4, expected=4 | fulfillment=COMPLETED | order=COMPLETED | payment=PAID | buyerHTTP=200 sellerHTTP=200
+
+============================================================
+SUMMARY: L05 Concurrency Test
+============================================================
+Total iterations: 50
+PASS: 50
+FAIL: 0
+Overall: PASS
+
+No failures.
+============================================================

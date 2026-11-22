@@ -1,0 +1,46 @@
+================================================================================
+BUKTI FISIK: LOG MUTASI BASIS DATA - PENGUJIAN MANUAL A04 END-TO-END
+Aplikasi      : UMK Marketplace
+Target Akun   : 202351149@std.umk.ac.id
+Database      : Supabase umk-marketplace-testing (Isolated Instance)
+Metode Uji    : Black-Box Manual UI Browser (http://localhost:5173)
+Waktu Mulai   : 2026-11-20T00:20:10.709Z
+================================================================================
+
+[TAHAP 0: KONDISI AWAL SEBELUM AKSI USER] - 2026-11-20T00:20:11.959Z
+- Status Tabel User : NULL (Belum terdaftar / Bersih)
+- Status Tabel Otp  : NULL (Tidak ada data OTP)
+----------------------------------------------------------------
+
+[TAHAP 1: MUTASI SETELAH KLIK REGISTER DI BROWSER] - 2026-11-20T00:23:17.286Z
+>> MUTASI PADA TABEL 'User':
+   - id            : 0752361b-6974-4787-ac2c-d044eab5e59c
+   - name          : Moh Baidlowi Syafik
+   - email         : 202351149@std.umk.ac.id
+   - role          : USER
+   - status        : PENDING_VERIFICATION (Menunggu verifikasi OTP)
+   - created_at    : 2026-11-20T00:23:15.899Z
+>> MUTASI PADA TABEL 'Otp':
+   - id            : 7cfb519e-1475-46ca-a7f7-270c368b999a
+   - email         : 202351149@std.umk.ac.id
+   - otp_hash      : [SECURE_SHA256_HASH_STORED]
+   - attempts      : 0
+   - expires_at    : 2026-11-20T00:33:15.937Z (Berlaku 10 menit)
+   - created_at    : 2026-11-20T00:23:15.939Z
+----------------------------------------------------------------
+
+
+[TAHAP 2: MUTASI SETELAH VERIFIKASI DENGAN OTP VALID] - 2026-11-20T01:15:14.518Z
+>> MUTASI PADA TABEL 'User':
+   - id            : 0752361b-6974-4787-ac2c-d044eab5e59c
+   - email         : 202351149@std.umk.ac.id
+   - status_lama   : PENDING_VERIFICATION
+   - status_baru   : ACTIVE (AKUN RESMI AKTIF)
+   - updated_at    : 2026-11-20T01:15:14.518Z
+>> MUTASI PADA TABEL 'Otp':
+   - record_state  : PURGED / DELETED (Record dihapus otomatis demi keamanan)
+================================================================
+KESIMPULAN: PENGUJIAN MANUAL A04 BERHASIL (PASS) 100%
+Seluruh siklus mutasi data User dan penghapusan OTP tervalidasi.
+================================================================
+

@@ -1,0 +1,160 @@
+================================================================================
+TEST CASE EVIDENCE LOG: L02 - Webhook Midtrans settlement -> stok berkurang
+Business Rule: BR5: Webhook Midtrans settlement -> stok berkurang
+Target: API / HTTP Level Validation
+Database: Supabase umk-marketplace-testing (isolated testing DB: zojvqbaylpxqjygeqnpj)
+Generated At: 2026-11-20T02:11:08.578Z
+================================================================================
+
+============================================================
+>>> RUN 1/3 <<<
+============================================================
+
+--- SUB-TEST A1: Valid Settlement Webhook ---
+[DB STATE BEFORE] Product stock: 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification ---
+Payload: {
+  "order_id": "ORD-TEST-L02-1-1795140669715",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[REDACTED_SHA512]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Order status: READY_FOR_HANDOVER, Payment status: PAID, Product stock: 8, Expected stock: 8
+[RESULT A1] PASS
+
+--- SUB-TEST A2: Duplicate Webhook (Idempotency) ---
+[DB STATE BEFORE] Product stock: 8
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (DUPLICATE) ---
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Product stock: 8 (expected same as before: 8)
+[RESULT A2] PASS - Stock unchanged (idempotent): true
+
+--- SUB-TEST A3: Invalid Signature Webhook ---
+[DB STATE BEFORE] Product stock (new order): 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (BAD SIGNATURE) ---
+Payload: {
+  "order_id": "ORD-TEST-L02-11-1795140671302",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[INVALID_SIG]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": false,
+  "message": "Invalid signature"
+}
+[DB STATE AFTER] Order status: PENDING_PAYMENT, Payment status: PENDING, Product stock: 10
+[RESULT A3] PASS - Invalid sig rejected, DB unchanged
+
+============================================================
+>>> RUN 2/3 <<<
+============================================================
+
+--- SUB-TEST A1: Valid Settlement Webhook ---
+[DB STATE BEFORE] Product stock: 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification ---
+Payload: {
+  "order_id": "ORD-TEST-L02-2-1795140671888",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[REDACTED_SHA512]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Order status: READY_FOR_HANDOVER, Payment status: PAID, Product stock: 8, Expected stock: 8
+[RESULT A1] PASS
+
+--- SUB-TEST A2: Duplicate Webhook (Idempotency) ---
+[DB STATE BEFORE] Product stock: 8
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (DUPLICATE) ---
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Product stock: 8 (expected same as before: 8)
+[RESULT A2] PASS - Stock unchanged (idempotent): true
+
+--- SUB-TEST A3: Invalid Signature Webhook ---
+[DB STATE BEFORE] Product stock (new order): 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (BAD SIGNATURE) ---
+Payload: {
+  "order_id": "ORD-TEST-L02-12-1795140673291",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[INVALID_SIG]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": false,
+  "message": "Invalid signature"
+}
+[DB STATE AFTER] Order status: PENDING_PAYMENT, Payment status: PENDING, Product stock: 10
+[RESULT A3] PASS - Invalid sig rejected, DB unchanged
+
+============================================================
+>>> RUN 3/3 <<<
+============================================================
+
+--- SUB-TEST A1: Valid Settlement Webhook ---
+[DB STATE BEFORE] Product stock: 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification ---
+Payload: {
+  "order_id": "ORD-TEST-L02-3-1795140673901",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[REDACTED_SHA512]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Order status: READY_FOR_HANDOVER, Payment status: PAID, Product stock: 8, Expected stock: 8
+[RESULT A1] PASS
+
+--- SUB-TEST A2: Duplicate Webhook (Idempotency) ---
+[DB STATE BEFORE] Product stock: 8
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (DUPLICATE) ---
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": true,
+  "message": "Notification processed"
+}
+[DB STATE AFTER] Product stock: 8 (expected same as before: 8)
+[RESULT A2] PASS - Stock unchanged (idempotent): true
+
+--- SUB-TEST A3: Invalid Signature Webhook ---
+[DB STATE BEFORE] Product stock (new order): 10
+--- [HTTP REQUEST] POST /api/payments/midtrans/notification (BAD SIGNATURE) ---
+Payload: {
+  "order_id": "ORD-TEST-L02-13-1795140675101",
+  "status_code": "200",
+  "gross_amount": "102000.00",
+  "signature_key": "[INVALID_SIG]",
+  "transaction_status": "settlement"
+}
+--- [HTTP RESPONSE] Status: 200 ---
+Response Body: {
+  "success": false,
+  "message": "Invalid signature"
+}
+[DB STATE AFTER] Order status: PENDING_PAYMENT, Payment status: PENDING, Product stock: 10
+[RESULT A3] PASS - Invalid sig rejected, DB unchanged
