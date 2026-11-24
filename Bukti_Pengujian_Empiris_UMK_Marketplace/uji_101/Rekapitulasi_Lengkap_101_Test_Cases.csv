@@ -1,0 +1,102 @@
+﻿No;ID Kasus;Modul Pengujian;Fitur;Skenario Kasus Uji;Prasyarat & Langkah Pengujian;Hasil yang Diharapkan;Hasil Pengujian Aktual;Status;Catatan Bukti
+1;A01;Modul A: Verification (Verifikasi Email & OTP);Verification;Registrasi email institusi valid;Submit 9 digit NIM + @std.umk.ac.id;Registrasi diterima, pending verification, OTP terkirim;Memenuhi Expected Result;PASS;Institutional Validation
+2;A02;Modul A: Verification (Verifikasi Email & OTP);Verification;Email non-institusi;Submit @gmail.com;Registrasi ditolak;Memenuhi Expected Result;PASS;Institutional Validation
+3;A03;Modul A: Verification (Verifikasi Email & OTP);Verification;Format NIM tidak valid;Submit NIM dengan huruf/kurang digit;Ditolak;Memenuhi Expected Result;PASS;Institutional Validation
+4;A04;Modul A: Verification (Verifikasi Email & OTP);Verification;OTP valid (BR1);"Akun PENDING_VERIFICATION; masukkan OTP benar, klik ""Verifikasi Kode""";"Status ACTIVE; record OTP dihapus (PURGED); sesi diterbitkan";"HTTP 200; ACTIVE pukul 08.15 WIB; record OTP terhapus (PURGED); pengguna masuk sesi";PASS;Uji Ulang Empiris: Tervalidasi mutasi DB & email Brevo (manual_a04_db_mutation.log)
+5;A05;Modul A: Verification (Verifikasi Email & OTP);Verification;OTP salah (BR1);"Halaman verifikasi OTP; masukkan kode salah (""999999""), klik verifikasi";"Ditolak (HTTP 400); counter attempts bertambah; status user tetap PENDING_VERIFICATION";"HTTP 400 ""Invalid verification code. 4 attempt(s) remaining.""; attempts +1; status tetap PENDING";PASS;Uji Ulang Empiris: 3 siklus lolos (A05.log)
+6;A06;Modul A: Verification (Verifikasi Email & OTP);Verification;OTP expired (BR1);"Masa berlaku OTP (10 menit) terlewati; masukkan OTP lama setelah expired_at";"Ditolak dengan pesan kedaluwarsa; status user tetap PENDING_VERIFICATION";"HTTP 400 ""Verification code has expired. Please request a new one.""; status tetap PENDING";PASS;Uji Ulang Empiris: 3 siklus lolos (A06.log)
+7;A07;Modul A: Verification (Verifikasi Email & OTP);Verification;OTP resend setelah cooldown (BR1);"Masa cooldown 60 detik terpenuhi; klik ""Kirim Ulang Kode"" pada detik ke-62";"OTP baru dibuat di DB dan email terkirim via Brevo API; verifikasi berhasil (ACTIVE)";"HTTP 200 ""Kode verifikasi baru telah dikirim ke email Anda.""; record OTP diperbarui; akun ACTIVE";PASS;Uji Ulang Empiris: 3 siklus lolos (A07.log)
+8;A08;Modul A: Verification (Verifikasi Email & OTP);Verification;OTP resend < 60 detik (BR1);"Kirim ulang terakhir < 60 detik lalu; klik ""Kirim Ulang Kode"" berulang sebelum jeda berakhir";"Ditolak dengan pesan batas cooldown rate limiting; tidak ada email baru dikirim";"HTTP 400 ""Please wait 50 second(s) before requesting a new code.""; email baru tidak dikirim";PASS;Uji Ulang Empiris: 3 siklus lolos & screenshot terverifikasi (A08.log)
+9;B01;Modul B: Auth (Autentikasi & Login);Auth;Login user terverifikasi;Submit email & password valid;Berhasil login, token diberikan;Memenuhi Expected Result;PASS;Tested via API/E2E
+10;B02;Modul B: Auth (Autentikasi & Login);Auth;Login user pending;Submit email & password valid;Ditolak / diarahkan ke verifikasi;Memenuhi Expected Result;PASS;Tested via API/E2E
+11;B03;Modul B: Auth (Autentikasi & Login);Auth;Login user suspended;Submit email & password valid;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+12;B04;Modul B: Auth (Autentikasi & Login);Auth;Password salah;Submit password salah;Login gagal;Memenuhi Expected Result;PASS;Tested via API/E2E
+13;B05;Modul B: Auth (Autentikasi & Login);Auth;Token tidak valid;Akses protected endpoint (token acak);Unauthorized (401);Memenuhi Expected Result;PASS;Tested via API/E2E
+14;B06;Modul B: Auth (Autentikasi & Login);Auth;Tanpa login akses endpoint;Akses protected endpoint tanpa header;Unauthorized (401);Memenuhi Expected Result;PASS;Tested via API/E2E
+15;C01;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;Buyer akses order sendiri;GET /orders/A;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+16;C02;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;Buyer akses order user lain;GET /orders/B;Ditolak (403/404);Memenuhi Expected Result;PASS;Tested via API/E2E
+17;C03;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;Seller akses order seller lain;GET /orders/C;Ditolak (403/404);Memenuhi Expected Result;PASS;Tested via API/E2E
+18;C04;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;Ubah resource user lain;PATCH /products/B;Ditolak (403);Memenuhi Expected Result;PASS;Tested via API/E2E
+19;C05;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;User akses endpoint admin;GET /admin/users;Ditolak (403);Memenuhi Expected Result;PASS;Tested via API/E2E
+20;C06;Modul C: Authz (Otorisasi & Kontrol Akses);Authz;Privilege ADMIN;Suspend User B;Ditolak (403);Memenuhi Expected Result;PASS;Tested via API/E2E
+21;D01;Modul D: Product (Manajemen Produk);Product;Seller membuat produk;POST /products;Produk dibuat;Memenuhi Expected Result;PASS;Tested via API/E2E
+22;D02;Modul D: Product (Manajemen Produk);Product;Seller mengubah produk;PATCH /products/B;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+23;D03;Modul D: Product (Manajemen Produk);Product;Seller menghapus produk;DELETE /products/B;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+24;D04;Modul D: Product (Manajemen Produk);Product;Mengubah produk seller lain;PATCH /products/A;Ditolak (403);Memenuhi Expected Result;PASS;Tested via API/E2E
+25;D05;Modul D: Product (Manajemen Produk);Product;User beli produk sendiri;Beli Product B;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+26;D06;Modul D: Product (Manajemen Produk);Product;Produk stok 0;Masukkan ke cart;Ditolak / error;Memenuhi Expected Result;PASS;Tested via API/E2E
+27;D07;Modul D: Product (Manajemen Produk);Product;Produk tidak aktif;Transaksi produk tsb;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+28;E01;Modul E: Search (Pencarian & Filter Produk);Search;Search nama produk;"Search ""Buku""";"Menampilkan ""Buku X""";Memenuhi Expected Result;PASS;Tested via API/E2E
+29;E02;Modul E: Search (Pencarian & Filter Produk);Search;Filter kategori;Filter Elektronik;Menampilkan produk elektronik;Memenuhi Expected Result;PASS;Tested via API/E2E
+30;E03;Modul E: Search (Pencarian & Filter Produk);Search;Search tanpa hasil;"Search ""XYZ123Random""";Empty state;Memenuhi Expected Result;PASS;Tested via API/E2E
+31;E04;Modul E: Search (Pencarian & Filter Produk);Search;Input aneh;"Search ""@#*($@)""";Tidak menyebabkan error sistem;Memenuhi Expected Result;PASS;Tested via API/E2E
+32;F01;Modul F: Cart (Keranjang Belanja);Cart;Tambah produk;Add to cart Product B;Masuk ke cart;Memenuhi Expected Result;PASS;Tested via API/E2E
+33;F02;Modul F: Cart (Keranjang Belanja);Cart;Update quantity;Set quantity = 2;Kuantitas berubah;Memenuhi Expected Result;PASS;Tested via API/E2E
+34;F03;Modul F: Cart (Keranjang Belanja);Cart;Quantity > Stock;Set quantity = 2;Ditolak / dibatasi;Memenuhi Expected Result;PASS;Tested via API/E2E
+35;F04;Modul F: Cart (Keranjang Belanja);Cart;Hapus item;Remove item;Item hilang dari cart;Memenuhi Expected Result;PASS;Tested via API/E2E
+36;F05;Modul F: Cart (Keranjang Belanja);Cart;Cart user lain;GET cart User B;Data tidak bocor / akses ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+37;G01;Modul G: Checkout (Pemesanan & Checkout);Checkout;Checkout satu seller;Checkout;Order terbentuk, nominal valid;Memenuhi Expected Result;PASS;Tested via API/E2E
+38;G02;Modul G: Checkout (Pemesanan & Checkout);Checkout;Checkout multi-seller;Checkout;Transaksi multi-seller diproses;Memenuhi Expected Result;PASS;Tested via API/E2E
+39;G03;Modul G: Checkout (Pemesanan & Checkout);Checkout;Quantity valid;Checkout;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+40;G04;Modul G: Checkout (Pemesanan & Checkout);Checkout;Harga dimanipulasi;POST /checkout dengan harga palsu;Backend memakai harga asli DB;Memenuhi Expected Result;PASS;Tested via API/E2E
+41;G05;Modul G: Checkout (Pemesanan & Checkout);Checkout;Quantity > Stock;Checkout;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+42;G06;Modul G: Checkout (Pemesanan & Checkout);Checkout;Seller subtotal;Seller lihat order;Subtotal dihitung berdasar item milik seller tsb;Memenuhi Expected Result;PASS;Tested via API/E2E
+43;G07;Modul G: Checkout (Pemesanan & Checkout);Checkout;Service fee;Checkout;Total ditambah 2000 (aturan statis);Memenuhi Expected Result;PASS;Tested via API/E2E
+44;H01;Modul H: Payment (Metode Pembayaran);Order;Buyer lihat order sendiri;GET order detail;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+45;H02;Modul H: Payment (Metode Pembayaran);Order;Buyer lihat order orang;GET order detail B;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+46;H03;Modul H: Payment (Metode Pembayaran);Order;Seller lihat order terkait;GET seller order;Hanya melihat data relevan produk B;Memenuhi Expected Result;PASS;Tested via API/E2E
+47;H04;Modul H: Payment (Metode Pembayaran);Order;Seller lihat data lain;Akses item C di order;Tidak bocor;Memenuhi Expected Result;PASS;Tested via API/E2E
+48;H05;Modul H: Payment (Metode Pembayaran);Order;Format Order ID;Periksa format ID;Sesuai (ORD-YYYY-XXXXXX);Memenuhi Expected Result;PASS;Tested via API/E2E
+49;I01;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Payment initiation;Submit;Transaksi pembayaran Midtrans dibuat;Memenuhi Expected Result;PASS;Tested via API/E2E
+50;I02;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Payment success;Kirim payload PAID;Status payment & order berubah PAID/Handover;Memenuhi Expected Result;PASS;Tested via API/E2E
+51;I03;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Payment gagal;Kirim payload FAILED;Status menjadi FAILED/CANCELLED;Memenuhi Expected Result;PASS;Tested via API/E2E
+52;I04;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Webhook valid;Kirim signature benar;Diproses;Memenuhi Expected Result;PASS;Tested via API/E2E
+53;I05;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Webhook signature salah;Kirim signature palsu;Ditolak (400/403);Memenuhi Expected Result;PASS;Tested via API/E2E
+54;I06;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Webhook duplicate;Kirim payload PAID 2x;Stok tidak berkurang 2x (Idempotensi);Memenuhi Expected Result;PASS;Tested via API/E2E
+55;I07;Modul I: Midtrans (Payment Gateway Midtrans);Midtrans;Stock sesudah settlement;Webhook PAID masuk;Stok berkurang di DB;Memenuhi Expected Result;PASS;Tested via API/E2E
+56;J01;Modul J: Fulfillment (Kesepakatan Serah Terima);COD;Checkout COD;Submit;Order COD berhasil dibuat;Memenuhi Expected Result;PASS;Tested via API/E2E
+57;J02;Modul J: Fulfillment (Kesepakatan Serah Terima);COD;COD bukan otomatis paid;Cek status pembayaran;Belum completed/paid;Memenuhi Expected Result;PASS;Tested via API/E2E
+58;J03;Modul J: Fulfillment (Kesepakatan Serah Terima);COD;Buyer lihat COD sendiri;GET order;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+59;J04;Modul J: Fulfillment (Kesepakatan Serah Terima);COD;Seller lihat COD terkait;GET seller order;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+60;K01;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Seller konfirmasi;confirmSeller();Seller confirmation true;Memenuhi Expected Result;PASS;Two-Party Handover
+61;K02;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Buyer konfirmasi;confirmBuyer();Buyer confirmation true;Memenuhi Expected Result;PASS;Two-Party Handover
+62;K03;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Seller konfirmasi tunggal;Cek order status;Belum COMPLETED;Memenuhi Expected Result;PASS;Two-Party Handover
+63;K04;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Buyer konfirmasi tunggal;Cek order status;Belum COMPLETED;Memenuhi Expected Result;PASS;Two-Party Handover
+64;K05;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Konfirmasi dua pihak;Cek order & fulfillment;Fulfillment = COMPLETED, Order = COMPLETED, Stok turun;Memenuhi Expected Result;PASS;Two-Party Handover
+65;K06;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;User lain (seller conf);confirmSeller();Ditolak;Memenuhi Expected Result;PASS;Two-Party Handover
+66;K07;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;User lain (buyer conf);confirmBuyer();Ditolak;Memenuhi Expected Result;PASS;Two-Party Handover
+67;K08;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Double confirmation;confirmBuyer() 2x;State tidak rusak, aman;Memenuhi Expected Result;PASS;Two-Party Handover
+68;K09;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Meeting point;POST handover details;Tersimpan;Memenuhi Expected Result;PASS;Two-Party Handover
+69;K10;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Date/Time;POST handover details;Tersimpan;Memenuhi Expected Result;PASS;Two-Party Handover
+70;K11;Modul K: WhatsApp (Notifikasi Fonnte WA);Handover;Notes;POST handover details;Tersimpan;Memenuhi Expected Result;PASS;Two-Party Handover
+71;L01;Modul L: Stock (Integritas Stok & Konkurensi);Stock;Stok sebelum payment;Catat stok;Dicatat;Memenuhi Expected Result;PASS;Tested via API/E2E
+72;L02;Modul L: Stock (Integritas Stok & Konkurensi);Stock;Payment settlement & pemotongan stok (BR5);"Pesanan PENDING_PAYMENT; stok 10; kuantitas 2. POST /api/payments/notification: valid, duplikat, dan signature palsu";"Pembayaran PAID; stok terpotong tepat menjadi 8; duplikat idempoten (stok tetap 8); signature palsu ditolak HTTP 400";"Valid: HTTP 200, stok 8; duplikat: stok tetap 8; palsu: HTTP 400 ""Invalid signature"" (3 siklus PASS)";PASS;Uji Ulang Empiris: 3 siklus lolos & dashboard Midtrans settlement tervalidasi (L02.log)
+73;L03;Modul L: Stock (Integritas Stok & Konkurensi);Stock;COD sblm handover;Cek stok;Stok belum berkurang;Memenuhi Expected Result;PASS;Tested via API/E2E
+74;L04;Modul L: Stock (Integritas Stok & Konkurensi);Stock;COD pasca handover;Cek stok;Stok berkurang sesuai kuantitas;Memenuhi Expected Result;PASS;Tested via API/E2E
+75;L05;Modul L: Stock (Integritas Stok & Konkurensi);Stock;Race condition serah terima / handover (BR6);"Pesanan COD AGREED; stok 5; kuantitas 1. Konfirmasi serentak pembeli dan penjual (Promise.all), 50 iterasi";"Transaksi atomik bersyarat; status COMPLETED; pembayaran PAID; stok terpotong tepat 1 unit (menjadi 4)";"50 dari 50 iterasi (100%): stok akhir tepat 4 unit, COMPLETED, PAID; tidak ada race condition/double decrement";PASS;Uji Ulang Empiris: Beban 50 iterasi konkuren lolos (L05.log)
+76;M01;Modul M: Review (Ulasan & Rating Produk);Review;Review post-completed;POST review;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+77;M02;Modul M: Review (Ulasan & Rating Produk);Review;Review post-pending;POST review;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+78;M03;Modul M: Review (Ulasan & Rating Produk);Review;Bukan buyer;POST review;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+79;M04;Modul M: Review (Ulasan & Rating Produk);Review;Duplicate review;POST review 2x;Ditolak (Unique Constraint);Memenuhi Expected Result;PASS;Tested via API/E2E
+80;N01;Modul N: Chat (Pesan Langsung / Obrolan);Chat;Buyer chat seller;Kirim chat;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+81;N02;Modul N: Chat (Pesan Langsung / Obrolan);Chat;Seller chat buyer;Kirim chat;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+82;N03;Modul N: Chat (Pesan Langsung / Obrolan);Chat;User lain akses chat;GET chat A&B;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+83;N04;Modul N: Chat (Pesan Langsung / Obrolan);Chat;User lain kirim pesan;POST chat;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+84;O01;Modul O: Notif (Notifikasi Sistem);Notif;Terima notifikasi;Cek notifikasi User A;Notifikasi diterima;Memenuhi Expected Result;PASS;Tested via API/E2E
+85;O02;Modul O: Notif (Notifikasi Sistem);Notif;Akses notif orang lain;GET notif User B;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+86;O03;Modul O: Notif (Notifikasi Sistem);Notif;Event trigger;Cek notif Seller B;Dibuat saat order valid (event sesuai);Memenuhi Expected Result;PASS;Tested via API/E2E
+87;P01;Modul P: Report (Pelaporan Pengguna/Produk);Report;Laporan valid;POST report;Tersimpan;Memenuhi Expected Result;PASS;Tested via API/E2E
+88;P02;Modul P: Report (Pelaporan Pengguna/Produk);Report;Lihat report orang lain;GET report User A;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+89;P03;Modul P: Report (Pelaporan Pengguna/Produk);Report;Admin lihat report;GET reports;Berhasil melihat;Memenuhi Expected Result;PASS;Tested via API/E2E
+90;P04;Modul P: Report (Pelaporan Pengguna/Produk);Report;User akses admin report;GET /admin/reports;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+91;Q01;Modul Q: Admin (Panel Kontrol Admin);Admin;Admin login;Login;Berhasil login sbg Admin;Memenuhi Expected Result;PASS;Tested via API/E2E
+92;Q02;Modul Q: Admin (Panel Kontrol Admin);Admin;Akses dashboard;GET admin dashboard;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+93;Q03;Modul Q: Admin (Panel Kontrol Admin);Admin;Kelola user;GET users, Suspend user;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+94;Q04;Modul Q: Admin (Panel Kontrol Admin);Admin;Kelola product/report;GET products, review;Berhasil;Memenuhi Expected Result;PASS;Tested via API/E2E
+95;Q05;Modul Q: Admin (Panel Kontrol Admin);Admin;User biasa ke admin;GET admin dashboard;Ditolak (403);Memenuhi Expected Result;PASS;Tested via API/E2E
+96;Q06;Modul Q: Admin (Panel Kontrol Admin);Admin;Reg. publik sbg admin;Inject role=ADMIN;Role tetap USER;Memenuhi Expected Result;PASS;Tested via API/E2E
+97;R01;Modul R: Deact (Penonaktifan Akun & Audit);Deact;Admin nonaktifkan user;Suspend User A;Status User A -> SUSPENDED;Memenuhi Expected Result;PASS;Tested via API/E2E
+98;R02;Modul R: Deact (Penonaktifan Akun & Audit);Deact;User nonaktif login;Login;Ditolak;Memenuhi Expected Result;PASS;Tested via API/E2E
+99;R03;Modul R: Deact (Penonaktifan Akun & Audit);Deact;Beli produk us. nonaktif;Beli product;Ditolak (seller suspended/produk inactive);Memenuhi Expected Result;PASS;Tested via API/E2E
+100;R04;Modul R: Deact (Penonaktifan Akun & Audit);Deact;Riwayat transaksi;Lihat riwayat order User A;Tetap ada (history aman);Memenuhi Expected Result;PASS;Tested via API/E2E
+101;R05;Modul R: Deact (Penonaktifan Akun & Audit);Deact;Audit record;GET /admin/audit-logs;Record tindakan suspend tercatat;Memenuhi Expected Result;PASS;Tested via API/E2E
